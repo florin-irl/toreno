@@ -40,6 +40,11 @@ public partial class MainWindow : Window
         new SettingsWindow { Owner = this }.ShowDialog();
     }
 
+    private void AboutButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        new AboutWindow { Owner = this }.ShowDialog();
+    }
+
     private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
     {
         // Closing the window just hides it -- the app keeps running in the tray

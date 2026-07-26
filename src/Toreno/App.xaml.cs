@@ -31,7 +31,7 @@ public partial class App : Application
 
         _trayIcon = new TaskbarIcon
         {
-            ToolTipText = "Toreno — by florin-irl",
+            ToolTipText = "Toreno",
             IconSource = BitmapFrame.Create(
                 new System.Uri("pack://application:,,,/Resources/tray.ico")),
             ContextMenu = BuildContextMenu()
@@ -47,10 +47,15 @@ public partial class App : Application
 
     private ContextMenu BuildContextMenu()
     {
+        var aboutItem = new MenuItem { Header = "About" };
+        aboutItem.Click += (_, _) => ShowAboutWindow();
+
         var exitItem = new MenuItem { Header = "Exit" };
         exitItem.Click += (_, _) => Shutdown();
 
         var menu = new ContextMenu();
+        menu.Items.Add(aboutItem);
+        menu.Items.Add(new Separator());
         menu.Items.Add(exitItem);
         return menu;
     }
@@ -61,6 +66,17 @@ public partial class App : Application
         _mainWindow.Show();
         _mainWindow.WindowState = WindowState.Normal;
         _mainWindow.Activate();
+    }
+
+    private void ShowAboutWindow()
+    {
+        var about = new AboutWindow();
+        if (_mainWindow is { IsVisible: true })
+        {
+            about.Owner = _mainWindow;
+        }
+
+        about.ShowDialog();
     }
 
     protected override void OnExit(ExitEventArgs e)
