@@ -6,9 +6,20 @@ namespace Toreno.Tests;
 public class JoinDetectorTests
 {
     [Fact]
-    public void DetectJoins_FirstPoll_ReturnsNothing()
+    public void DetectJoins_FirstPoll_WatchedPlayerAlreadyOnline_IsDetected()
     {
-        var current = new List<SampPlayer> { new("CJ", 0) };
+        var current = new List<SampPlayer> { new("CJ", 0), new("Sweet", 0) };
+
+        var joined = JoinDetector.DetectJoins(previousNames: null, current, watchUsernames: ["CJ"]);
+
+        Assert.Single(joined);
+        Assert.Equal("CJ", joined[0].Name);
+    }
+
+    [Fact]
+    public void DetectJoins_FirstPoll_NoWatchedPlayersOnline_ReturnsNothing()
+    {
+        var current = new List<SampPlayer> { new("Sweet", 0) };
 
         var joined = JoinDetector.DetectJoins(previousNames: null, current, watchUsernames: ["CJ"]);
 

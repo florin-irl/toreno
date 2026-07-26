@@ -14,11 +14,15 @@ public static class JoinDetector
         IReadOnlyList<SampPlayer> currentPlayers,
         IReadOnlyList<string> watchUsernames)
     {
-        // No previous snapshot means this is the first poll -- seed state silently
-        // instead of notifying for everyone already online when Toreno started.
+        // No previous snapshot means this is the first poll (or the first poll
+        // after regaining reachability) -- report anyone already online who's
+        // being watched for, rather than waiting for a subsequent join. Otherwise
+        // watching a friend who's already connected would never fire at all.
         if (previousNames == null)
         {
-            return Array.Empty<SampPlayer>();
+            return currentPlayers
+                .Where(p => watchUsernames.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+                .ToList();
         }
 
         var joined = new List<SampPlayer>();

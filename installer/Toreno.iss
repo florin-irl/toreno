@@ -15,8 +15,12 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
+; Always a per-user install, deliberately -- no elevation choice. Toreno's
+; startup registry key lives in HKCU for the interactively logged-in user;
+; if setup were ever allowed to run elevated (a different admin account),
+; that write would land in the wrong user's hive and silently not take
+; effect for the account that actually runs the app.
 PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=Output
 OutputBaseFilename=TorenoSetup
 SetupIconFile=..\src\Toreno\Resources\tray.ico
