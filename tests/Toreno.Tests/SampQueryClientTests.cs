@@ -8,6 +8,17 @@ namespace Toreno.Tests;
 public class SampQueryClientTests
 {
     [Fact]
+    public async Task GetPlayersAsync_NothingListening_ThrowsSampQueryExceptionNotSocketException()
+    {
+        // On Windows, sending UDP to a loopback port nobody's listening on gets an
+        // ICMP port-unreachable back near-instantly, which surfaces as a raw
+        // SocketException on the next receive rather than a timeout. This must be
+        // translated to SampQueryException like any other unreachable-server case.
+        await Assert.ThrowsAsync<SampQueryException>(() =>
+            SampQueryClient.GetPlayersAsync("127.0.0.1", 1, TimeSpan.FromSeconds(2)));
+    }
+
+    [Fact]
     public void ParsePlayerListResponse_ParsesNamesAndScores()
     {
         var buffer = BuildPlayerListResponse(

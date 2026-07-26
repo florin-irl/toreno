@@ -116,9 +116,18 @@ public static class SampQueryClient
         var request = BuildRequest(address, port, opcode);
 
         using var udp = new UdpClient();
-        await udp.SendAsync(request, request.Length, endpoint).ConfigureAwait(false);
 
-        var receiveTask = udp.ReceiveAsync();
+        Task<UdpReceiveResult> receiveTask;
+        try
+        {
+            await udp.SendAsync(request, request.Length, endpoint).ConfigureAwait(false);
+            receiveTask = udp.ReceiveAsync();
+        }
+        catch (SocketException ex)
+        {
+            throw new SampQueryException($"Could not reach {host}:{port} ({ex.SocketErrorCode}).", ex);
+        }
+
         var completed = await Task.WhenAny(receiveTask, Task.Delay(timeout, cancellationToken)).ConfigureAwait(false);
 
         if (completed != receiveTask)
@@ -132,8 +141,18 @@ public static class SampQueryClient
             throw new SampQueryException($"Timed out waiting for a response from {host}:{port}.");
         }
 
-        var result = await receiveTask.ConfigureAwait(false);
-        return result.Buffer;
+        try
+        {
+            var result = await receiveTask.ConfigureAwait(false);
+            return result.Buffer;
+        }
+        catch (SocketException ex)
+        {
+            // On Windows, a UDP send to a port nobody's listening on gets an ICMP
+            // "port unreachable" back, which surfaces here as a SocketException on
+            // the next receive rather than a clean timeout -- treat it the same way.
+            throw new SampQueryException($"Could not reach {host}:{port} ({ex.SocketErrorCode}).", ex);
+        }
     }
 
     private static async Task<IPAddress> ResolveAsync(string host, CancellationToken cancellationToken)
