@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Toreno.Config;
-using Toreno.Notifications;
 using Toreno.Samp;
 
 namespace Toreno;
@@ -51,10 +50,24 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (_config.Servers.Any(s => string.Equals(s.Address, addressInput, StringComparison.OrdinalIgnoreCase)))
+        {
+            MessageBox.Show(this, "A server with that address is already in your watchlist.", "Toreno");
+            return;
+        }
+
+        var nameInput = NameTextBox.Text.Trim();
+        if (!string.IsNullOrEmpty(nameInput) &&
+            _config.Servers.Any(s => string.Equals(s.Name, nameInput, StringComparison.OrdinalIgnoreCase)))
+        {
+            MessageBox.Show(this, "A server with that display name is already in your watchlist.", "Toreno");
+            return;
+        }
+
         var server = new WatchedServer
         {
             Address = addressInput,
-            Name = NameTextBox.Text.Trim()
+            Name = nameInput
         };
 
         _config.Servers.Add(server);
@@ -69,29 +82,24 @@ public partial class MainWindow : Window
         await RefreshServerStatusAsync(item);
     }
 
-    private void TestNotificationButton_OnClick(object sender, RoutedEventArgs e)
+    private async void ItemRecheckButton_OnClick(object sender, RoutedEventArgs e)
     {
-        NotificationService.ShowPlayerJoined("Test Server", "TestPlayer");
-    }
-
-    private async void RecheckServerButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (ServersListBox.SelectedItem is ServerListItem selected)
+        if (((FrameworkElement)sender).DataContext is ServerListItem item)
         {
-            await RefreshServerStatusAsync(selected);
+            await RefreshServerStatusAsync(item);
         }
     }
 
-    private void RemoveServerButton_OnClick(object sender, RoutedEventArgs e)
+    private void ItemRemoveButton_OnClick(object sender, RoutedEventArgs e)
     {
-        if (ServersListBox.SelectedItem is not ServerListItem selected)
+        if (((FrameworkElement)sender).DataContext is not ServerListItem item)
         {
             return;
         }
 
-        _config.Servers.Remove(selected.Server);
+        _config.Servers.Remove(item.Server);
         ConfigStore.Save(_config);
-        _servers.Remove(selected);
+        _servers.Remove(item);
     }
 
     private void ServersListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -103,8 +111,6 @@ public partial class MainWindow : Window
         UsernameTextBox.IsEnabled = hasSelection;
         AddUsernameButton.IsEnabled = hasSelection;
         RemoveUsernameButton.IsEnabled = hasSelection;
-        RecheckServerButton.IsEnabled = hasSelection;
-        RemoveServerButton.IsEnabled = hasSelection;
 
         if (selected == null)
         {

@@ -126,16 +126,26 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="GhostButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+    <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Width" Value="28" />
+        <Setter Property="Height" Value="28" />
         <Setter Property="FontFamily" Value="Segoe UI" />
-        <Setter Property="FontSize" Value="11" />
-        <Setter Property="Padding" Value="4,2" />
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource PanelAltBrush}" />
                 <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
-                <Setter Property="Background" Value="Transparent" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="DangerIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource PanelAltBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
             </Trigger>
         </Style.Triggers>
     </Style>

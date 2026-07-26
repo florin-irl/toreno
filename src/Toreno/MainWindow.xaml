@@ -34,8 +34,6 @@
                 <ColumnDefinition Width="200" />
                 <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0">
@@ -50,9 +48,6 @@
 
             <Button Grid.Column="4" Content="ADD SERVER" Style="{StaticResource PrimaryButtonStyle}"
                     VerticalAlignment="Bottom" Click="AddServerButton_OnClick" />
-
-            <Button Grid.Column="6" Content="Send test notification" Style="{StaticResource GhostButtonStyle}"
-                    VerticalAlignment="Bottom" Click="TestNotificationButton_OnClick" />
         </Grid>
 
         <!-- Body -->
@@ -71,25 +66,35 @@
                     <Border DockPanel.Dock="Top" Height="2" Background="{StaticResource AccentBrush}"
                             Opacity="0.6" Margin="0,8,0,12" />
 
-                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
-                        <Button x:Name="RecheckServerButton" Content="RECHECK STATUS"
-                                Click="RecheckServerButton_OnClick" IsEnabled="False" />
-                        <Button x:Name="RemoveServerButton" Content="REMOVE SERVER" Margin="8,0,0,0"
-                                Style="{StaticResource DangerButtonStyle}"
-                                Click="RemoveServerButton_OnClick" IsEnabled="False" />
-                    </StackPanel>
-
                     <Grid>
                         <ListBox x:Name="ServersListBox" SelectionChanged="ServersListBox_OnSelectionChanged">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Margin="0,2,0,2">
-                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="14" />
-                                        <TextBlock Text="{Binding Address}" Style="{StaticResource CaptionStyle}"
-                                                   Margin="0,2,0,0" />
-                                        <TextBlock Text="{Binding StatusText}" Foreground="{Binding StatusColor}"
-                                                   FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0" />
-                                    </StackPanel>
+                                    <Grid Margin="0,2,0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="14" />
+                                            <TextBlock Text="{Binding Address}" Style="{StaticResource CaptionStyle}"
+                                                       Margin="0,2,0,0" />
+                                            <TextBlock Text="{Binding StatusText}" Foreground="{Binding StatusColor}"
+                                                       FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                        </StackPanel>
+
+                                        <Button Grid.Column="1" Content="&#x21BB;" FontSize="14"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                ToolTip="Recheck status" VerticalAlignment="Top"
+                                                Click="ItemRecheckButton_OnClick" />
+
+                                        <Button Grid.Column="2" Content="&#x2715;" FontSize="12"
+                                                Style="{StaticResource DangerIconButtonStyle}"
+                                                ToolTip="Remove server" VerticalAlignment="Top" Margin="4,0,0,0"
+                                                Click="ItemRemoveButton_OnClick" />
+                                    </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
