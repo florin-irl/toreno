@@ -1,5 +1,7 @@
 # Toreno
 
+[![Latest Release](https://img.shields.io/github/v/release/florin-irl/toreno?label=download&color=orange)](https://github.com/florin-irl/toreno/releases/latest)
+
 *Somewhere, somehow, Toreno already knows you're online.*
 
 Toreno is a Windows tray app that watches one or more SA-MP servers' player list and sends a Windows notification when a friend you're watching for connects.
