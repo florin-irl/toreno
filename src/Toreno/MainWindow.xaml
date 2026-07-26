@@ -1,16 +1,65 @@
-﻿<Window x:Class="Toreno.MainWindow"
+<Window x:Class="Toreno.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Toreno"
         mc:Ignorable="d"
-        Title="Toreno" Height="450" Width="700"
+        Title="Toreno" Height="560" Width="820"
         Closing="MainWindow_OnClosing">
-    <Grid>
-        <TextBlock Text="Toreno"
-                   FontSize="28"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Toreno" FontSize="24" FontWeight="Bold" Margin="0,0,0,12" />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBox x:Name="AddressTextBox" Width="180" Text="127.0.0.1:7777" VerticalContentAlignment="Center" />
+            <TextBox x:Name="NameTextBox" Width="160" Margin="8,0,0,0" VerticalContentAlignment="Center" />
+            <Button x:Name="AddServerButton" Content="Add server" Margin="8,0,0,0" Click="AddServerButton_OnClick" />
+        </StackPanel>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <DockPanel Grid.Column="0">
+                <TextBlock DockPanel.Dock="Top" Text="Servers" FontWeight="Bold" Margin="0,0,0,4" />
+                <ListBox x:Name="ServersListBox" SelectionChanged="ServersListBox_OnSelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,4,0,4" MaxWidth="290">
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Address}" Foreground="Gray" FontSize="11" />
+                                <TextBlock Text="{Binding StatusText}" Foreground="{Binding StatusColor}"
+                                           FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <DockPanel Grid.Column="2">
+                <TextBlock DockPanel.Dock="Top" Text="Watched usernames" FontWeight="Bold" Margin="0,0,0,4" />
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBox x:Name="UsernameTextBox" Width="200" VerticalContentAlignment="Center" IsEnabled="False" />
+                    <Button x:Name="AddUsernameButton" Content="Add" Margin="8,0,0,0"
+                            Click="AddUsernameButton_OnClick" IsEnabled="False" />
+                    <Button x:Name="RemoveUsernameButton" Content="Remove" Margin="8,0,0,0"
+                            Click="RemoveUsernameButton_OnClick" IsEnabled="False" />
+                    <Button x:Name="RecheckServerButton" Content="Recheck status" Margin="16,0,0,0"
+                            Click="RecheckServerButton_OnClick" IsEnabled="False" />
+                    <Button x:Name="RemoveServerButton" Content="Remove server" Margin="8,0,0,0"
+                            Click="RemoveServerButton_OnClick" IsEnabled="False" />
+                </StackPanel>
+                <ListBox x:Name="UsernamesListBox" />
+            </DockPanel>
+        </Grid>
     </Grid>
 </Window>

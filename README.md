@@ -18,25 +18,30 @@ SA-MP servers expose a public UDP query protocol (the same one server browsers u
 
 No screen scraping, no game client required, no polling the server harder than a normal server browser would.
 
+### Known limitation
+
+Servers with a large max-slot count (roughly >100) disable the player-list query opcode entirely, as an anti-UDP-amplification measure — the server simply won't answer that part of the protocol, for anyone. Toreno can't see individual player names on those servers, and doesn't try to work around that by connecting as a fake game client — that would mean running an unauthorized bot connection against a server's own rules, which is out of scope on purpose. When you add a server, Toreno checks and clearly flags whether it supports player-list queries, so you know immediately whether a server is watchable.
+
 ## Features
 
 - **Watchlist** — track multiple servers, each with its own list of usernames to watch for
+- **Capability check on add** — querying a server you add immediately tells you whether it supports player-list queries at all, with a clear warning if it doesn't (see Known limitation above)
 - **Native notifications** — real Windows toast popups, not a console window
 - **Tray-first** — runs quietly in the background, minimal footprint
-- **Double-click UI** — a lightweight window behind the tray icon for anything beyond quick tray-menu actions (watchlist management, join history, etc. — details TBD)
+- **Double-click UI** — a lightweight window behind the tray icon for watchlist management (add/remove servers and usernames)
 - **Configurable poll interval** — tune how often it checks, per server
 - **Runs at startup** *(planned)* — optional launch-on-login
 
 ## Status
 
-🚧 Early development — not yet functional. Building in the open.
+🚧 Early development — not yet functional end-to-end (no live polling/notifications yet). Building in the open.
 
-- [ ] SA-MP UDP query client (send/parse `c`/`d` opcode packets)
+- [x] SA-MP UDP query client (send/parse `i`/`c` opcode packets)
 - [ ] Polling loop with per-server backoff on timeout
 - [ ] Join-detection diffing logic
-- [ ] Tray icon + native toast notifications
-- [ ] Watchlist config (multiple servers/usernames) + tray menu management
-- [ ] Double-click UI window
+- [x] Tray icon *(native toasts still pending)*
+- [x] Watchlist config (multiple servers/usernames), persisted to `%APPDATA%\Toreno\config.json`
+- [x] Double-click UI window — add/remove servers, manage watched usernames per server, capability warning on add
 - [ ] Packaged installer
 
 ## Tech stack
