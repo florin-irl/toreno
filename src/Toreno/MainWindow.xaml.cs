@@ -157,12 +157,12 @@ public partial class MainWindow : Window
     private async Task RefreshServerStatusAsync(ServerListItem item)
     {
         item.StatusText = "Checking...";
-        item.StatusColor = Brushes.Gray;
+        item.StatusColor = ThemeBrush("TextSecondaryBrush");
 
         if (!ServerAddress.TryParse(item.Server.Address, out var host, out var port))
         {
             item.StatusText = "Invalid address";
-            item.StatusColor = Brushes.IndianRed;
+            item.StatusColor = ThemeBrush("DangerBrush");
             return;
         }
 
@@ -171,13 +171,15 @@ public partial class MainWindow : Window
         (item.StatusText, item.StatusColor) = support switch
         {
             ServerQuerySupport.Supported =>
-                ("Player-list queries supported", (Brush)Brushes.SeaGreen),
+                ("Player-list queries supported", ThemeBrush("SuccessBrush")),
             ServerQuerySupport.PlayerListDisabled =>
                 ("⚠ This server has disabled player-list queries -- Toreno can't detect specific players here.",
-                    Brushes.DarkOrange),
+                    ThemeBrush("WarningBrush")),
             ServerQuerySupport.Unreachable =>
-                ("✕ Could not reach this server", Brushes.IndianRed),
-            _ => ("Unknown", Brushes.Gray)
+                ("✕ Could not reach this server", ThemeBrush("DangerBrush")),
+            _ => ("Unknown", ThemeBrush("TextSecondaryBrush"))
         };
     }
+
+    private static Brush ThemeBrush(string resourceKey) => (Brush)Application.Current.Resources[resourceKey];
 }

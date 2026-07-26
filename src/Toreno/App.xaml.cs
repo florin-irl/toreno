@@ -31,7 +31,7 @@ public partial class App : Application
 
         _trayIcon = new TaskbarIcon
         {
-            ToolTipText = "Toreno",
+            ToolTipText = "Toreno — by florin-irl",
             IconSource = BitmapFrame.Create(
                 new System.Uri("pack://application:,,,/Resources/tray.ico")),
             ContextMenu = BuildContextMenu()
