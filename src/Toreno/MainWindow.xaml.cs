@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Toreno.Config;
+using Toreno.Notifications;
 using Toreno.Samp;
 
 namespace Toreno;
@@ -18,11 +19,11 @@ public partial class MainWindow : Window
     private readonly AppConfig _config;
     private readonly ObservableCollection<ServerListItem> _servers = new();
 
-    public MainWindow()
+    public MainWindow(AppConfig config)
     {
         InitializeComponent();
 
-        _config = ConfigStore.Load();
+        _config = config;
         ServersListBox.ItemsSource = _servers;
 
         foreach (var server in _config.Servers)
@@ -44,7 +45,7 @@ public partial class MainWindow : Window
     private async void AddServerButton_OnClick(object sender, RoutedEventArgs e)
     {
         var addressInput = AddressTextBox.Text.Trim();
-        if (!TryParseAddress(addressInput, out _, out _))
+        if (!ServerAddress.TryParse(addressInput, out _, out _))
         {
             MessageBox.Show(this, "Enter an address as host:port, e.g. 127.0.0.1:7777", "Toreno");
             return;
@@ -66,6 +67,11 @@ public partial class MainWindow : Window
         NameTextBox.Text = "";
 
         await RefreshServerStatusAsync(item);
+    }
+
+    private void TestNotificationButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        NotificationService.ShowPlayerJoined("Test Server", "TestPlayer");
     }
 
     private async void RecheckServerButton_OnClick(object sender, RoutedEventArgs e)
@@ -153,7 +159,7 @@ public partial class MainWindow : Window
         item.StatusText = "Checking...";
         item.StatusColor = Brushes.Gray;
 
-        if (!TryParseAddress(item.Server.Address, out var host, out var port))
+        if (!ServerAddress.TryParse(item.Server.Address, out var host, out var port))
         {
             item.StatusText = "Invalid address";
             item.StatusColor = Brushes.IndianRed;
@@ -173,25 +179,5 @@ public partial class MainWindow : Window
                 ("✕ Could not reach this server", Brushes.IndianRed),
             _ => ("Unknown", Brushes.Gray)
         };
-    }
-
-    private static bool TryParseAddress(string input, out string host, out ushort port)
-    {
-        host = "";
-        port = 0;
-
-        var separatorIndex = input.LastIndexOf(':');
-        if (separatorIndex <= 0 || separatorIndex == input.Length - 1)
-        {
-            return false;
-        }
-
-        if (!ushort.TryParse(input[(separatorIndex + 1)..], out port))
-        {
-            return false;
-        }
-
-        host = input[..separatorIndex];
-        return true;
     }
 }

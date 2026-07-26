@@ -37,9 +37,9 @@ Servers with a large max-slot count (roughly >100) disable the player-list query
 🚧 Early development — not yet functional end-to-end (no live polling/notifications yet). Building in the open.
 
 - [x] SA-MP UDP query client (send/parse `i`/`c` opcode packets)
-- [ ] Polling loop with per-server backoff on timeout
-- [ ] Join-detection diffing logic
-- [x] Tray icon *(native toasts still pending)*
+- [x] Polling loop with per-server exponential backoff on repeated failure
+- [x] Join-detection diffing logic
+- [x] Tray icon + native toast notifications
 - [x] Watchlist config (multiple servers/usernames), persisted to `%APPDATA%\Toreno\config.json`
 - [x] Double-click UI window — add/remove servers, manage watched usernames per server, capability warning on add
 - [ ] Packaged installer

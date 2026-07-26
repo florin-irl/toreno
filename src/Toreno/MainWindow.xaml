@@ -20,6 +20,8 @@
             <TextBox x:Name="AddressTextBox" Width="180" Text="127.0.0.1:7777" VerticalContentAlignment="Center" />
             <TextBox x:Name="NameTextBox" Width="160" Margin="8,0,0,0" VerticalContentAlignment="Center" />
             <Button x:Name="AddServerButton" Content="Add server" Margin="8,0,0,0" Click="AddServerButton_OnClick" />
+            <Button x:Name="TestNotificationButton" Content="Send test notification" Margin="24,0,0,0"
+                    Click="TestNotificationButton_OnClick" />
         </StackPanel>
 
         <Grid Grid.Row="2">

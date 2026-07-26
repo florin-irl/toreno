@@ -2,6 +2,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Hardcodet.Wpf.TaskbarNotification;
+using Toreno.Config;
+using Toreno.Notifications;
+using Toreno.Polling;
+using Toreno.Samp;
 
 namespace Toreno;
 
@@ -12,10 +16,18 @@ public partial class App : Application
 {
     private TaskbarIcon? _trayIcon;
     private MainWindow? _mainWindow;
+    private AppConfig _config = null!;
+    private PollingService? _pollingService;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        _config = ConfigStore.Load();
+
+        _pollingService = new PollingService(_config);
+        _pollingService.PlayerJoined += OnPlayerJoined;
+        _pollingService.Start();
 
         _trayIcon = new TaskbarIcon
         {
@@ -25,6 +37,12 @@ public partial class App : Application
             ContextMenu = BuildContextMenu()
         };
         _trayIcon.TrayMouseDoubleClick += (_, _) => ShowMainWindow();
+    }
+
+    private void OnPlayerJoined(WatchedServer server, SampPlayer player)
+    {
+        var serverLabel = string.IsNullOrWhiteSpace(server.Name) ? server.Address : server.Name;
+        Dispatcher.Invoke(() => NotificationService.ShowPlayerJoined(serverLabel, player.Name));
     }
 
     private ContextMenu BuildContextMenu()
@@ -39,7 +57,7 @@ public partial class App : Application
 
     private void ShowMainWindow()
     {
-        _mainWindow ??= new MainWindow();
+        _mainWindow ??= new MainWindow(_config);
         _mainWindow.Show();
         _mainWindow.WindowState = WindowState.Normal;
         _mainWindow.Activate();
@@ -47,6 +65,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _pollingService?.Dispose();
         _trayIcon?.Dispose();
         base.OnExit(e);
     }
