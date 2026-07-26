@@ -6,6 +6,10 @@
 # dotenv files
 .env
 
+# Installer build output
+/publish/
+/installer/Output/
+
 # User-specific files
 *.rsuser
 *.suo

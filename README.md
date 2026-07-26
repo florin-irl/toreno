@@ -30,11 +30,11 @@ Servers with a large max-slot count (roughly >100) disable the player-list query
 - **Tray-first** — runs quietly in the background, minimal footprint
 - **Double-click UI** — a lightweight window behind the tray icon for watchlist management (add/remove servers and usernames)
 - **Configurable poll interval** — tune how often it checks, per server
-- **Runs at startup** *(planned)* — optional launch-on-login
+- **Runs at startup** — optional launch-on-login, toggleable both at install time and later from the window (per-user Run key, no admin rights needed)
 
 ## Status
 
-🚧 Early development — not yet functional end-to-end (no live polling/notifications yet). Building in the open.
+✅ Functional end-to-end: point it at a server, watch a username, get a real Windows toast the instant they join.
 
 - [x] SA-MP UDP query client (send/parse `i`/`c` opcode packets)
 - [x] Polling loop with per-server exponential backoff on repeated failure
@@ -42,7 +42,7 @@ Servers with a large max-slot count (roughly >100) disable the player-list query
 - [x] Tray icon + native toast notifications
 - [x] Watchlist config (multiple servers/usernames), persisted to `%APPDATA%\Toreno\config.json`
 - [x] Double-click UI window — add/remove servers, manage watched usernames per server, capability warning on add
-- [ ] Packaged installer
+- [x] Packaged installer with an optional "run at startup" task
 
 ## Tech stack
 
@@ -52,7 +52,9 @@ Servers with a large max-slot count (roughly >100) disable the player-list query
 - `CommunityToolkit.Notifications` for native Windows toasts
 - JSON config stored in `%APPDATA%\Toreno`
 
-## Configuration (planned format)
+## Configuration
+
+Stored at `%APPDATA%\Toreno\config.json`, managed through the UI (not meant to be hand-edited, but it's plain JSON):
 
 ```json
 {
@@ -66,6 +68,16 @@ Servers with a large max-slot count (roughly >100) disable the player-list query
   ]
 }
 ```
+
+## Building the installer
+
+Requires [Inno Setup 6](https://jrsoftware.org/isinfo.php) (`winget install JRSoftware.InnoSetup`). Then:
+
+```powershell
+installer\build.ps1
+```
+
+This publishes a self-contained single-file Release build and compiles `installer/Toreno.iss` into `installer/Output/TorenoSetup.exe` — a standalone installer with an uninstaller, Start Menu shortcut, optional desktop icon, and an optional "launch at Windows startup" task (checked by default).
 
 ## License
 
