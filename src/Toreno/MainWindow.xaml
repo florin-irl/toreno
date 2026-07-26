@@ -8,6 +8,7 @@
         Title="Toreno" Height="640" Width="1040"
         Icon="pack://application:,,,/Resources/tray.ico"
         Background="{StaticResource BackgroundBrush}"
+        ResizeMode="NoResize"
         Closing="MainWindow_OnClosing">
     <Grid Margin="24">
         <Grid.RowDefinitions>

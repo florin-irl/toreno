@@ -47,6 +47,9 @@ public partial class App : Application
 
     private ContextMenu BuildContextMenu()
     {
+        var settingsItem = new MenuItem { Header = "Settings" };
+        settingsItem.Click += (_, _) => ShowSettingsWindow();
+
         var aboutItem = new MenuItem { Header = "About" };
         aboutItem.Click += (_, _) => ShowAboutWindow();
 
@@ -54,6 +57,7 @@ public partial class App : Application
         exitItem.Click += (_, _) => Shutdown();
 
         var menu = new ContextMenu();
+        menu.Items.Add(settingsItem);
         menu.Items.Add(aboutItem);
         menu.Items.Add(new Separator());
         menu.Items.Add(exitItem);
@@ -77,6 +81,17 @@ public partial class App : Application
         }
 
         about.ShowDialog();
+    }
+
+    private void ShowSettingsWindow()
+    {
+        var settings = new SettingsWindow();
+        if (_mainWindow is { IsVisible: true })
+        {
+            settings.Owner = _mainWindow;
+        }
+
+        settings.ShowDialog();
     }
 
     protected override void OnExit(ExitEventArgs e)
