@@ -17,6 +17,7 @@ public partial class MainWindow : Window
 
     private readonly AppConfig _config;
     private readonly ObservableCollection<ServerListItem> _servers = new();
+    private readonly ObservableCollection<ServerPlayerItem> _serverPlayers = new();
 
     public MainWindow(AppConfig config)
     {
@@ -24,6 +25,7 @@ public partial class MainWindow : Window
 
         _config = config;
         ServersListBox.ItemsSource = _servers;
+        ServerPlayersListBox.ItemsSource = _serverPlayers;
 
         foreach (var server in _config.Servers)
         {
@@ -31,6 +33,11 @@ public partial class MainWindow : Window
             _servers.Add(item);
             _ = RefreshServerStatusAsync(item);
         }
+    }
+
+    private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        new SettingsWindow { Owner = this }.ShowDialog();
     }
 
     private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
@@ -41,33 +48,18 @@ public partial class MainWindow : Window
         Hide();
     }
 
-    private async void AddServerButton_OnClick(object sender, RoutedEventArgs e)
+    private async void AddServerIconButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var addressInput = AddressTextBox.Text.Trim();
-        if (!ServerAddress.TryParse(addressInput, out _, out _))
+        var dialog = new AddServerWindow(_config.Servers) { Owner = this };
+        if (dialog.ShowDialog() != true)
         {
-            MessageBox.Show(this, "Enter an address as host:port, e.g. 127.0.0.1:7777", "Toreno");
-            return;
-        }
-
-        if (_config.Servers.Any(s => string.Equals(s.Address, addressInput, StringComparison.OrdinalIgnoreCase)))
-        {
-            MessageBox.Show(this, "A server with that address is already in your watchlist.", "Toreno");
-            return;
-        }
-
-        var nameInput = NameTextBox.Text.Trim();
-        if (!string.IsNullOrEmpty(nameInput) &&
-            _config.Servers.Any(s => string.Equals(s.Name, nameInput, StringComparison.OrdinalIgnoreCase)))
-        {
-            MessageBox.Show(this, "A server with that display name is already in your watchlist.", "Toreno");
             return;
         }
 
         var server = new WatchedServer
         {
-            Address = addressInput,
-            Name = nameInput
+            Address = dialog.AddressInput,
+            Name = dialog.DisplayNameInput
         };
 
         _config.Servers.Add(server);
@@ -75,9 +67,6 @@ public partial class MainWindow : Window
 
         var item = new ServerListItem(server);
         _servers.Add(item);
-
-        AddressTextBox.Text = "";
-        NameTextBox.Text = "";
 
         await RefreshServerStatusAsync(item);
     }
@@ -107,10 +96,9 @@ public partial class MainWindow : Window
         var selected = ServersListBox.SelectedItem as ServerListItem;
 
         UsernamesListBox.Items.Clear();
-        var hasSelection = selected != null;
-        UsernameTextBox.IsEnabled = hasSelection;
-        AddUsernameButton.IsEnabled = hasSelection;
-        RemoveUsernameButton.IsEnabled = hasSelection;
+        _serverPlayers.Clear();
+
+        AddUsernameIconButton.IsEnabled = selected != null;
 
         if (selected == null)
         {
@@ -121,43 +109,123 @@ public partial class MainWindow : Window
         {
             UsernamesListBox.Items.Add(name);
         }
+
+        _ = RefreshServerPlayersAsync(selected);
     }
 
-    private void AddUsernameButton_OnClick(object sender, RoutedEventArgs e)
+    private async void RefreshServerPlayersButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (ServersListBox.SelectedItem is ServerListItem selected)
+        {
+            await RefreshServerPlayersAsync(selected);
+        }
+    }
+
+    private void ServerPlayersListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ServerPlayersListBox.SelectedItem is ServerPlayerItem item &&
+            ServersListBox.SelectedItem is ServerListItem selected)
+        {
+            if (item.IsWatched)
+            {
+                RemoveWatchedUsername(selected, item.Name);
+            }
+            else
+            {
+                AddWatchedUsername(selected, item.Name);
+            }
+        }
+
+        // Selection is used as a momentary "click" signal, not a persistent highlight --
+        // IsWatched already carries the visual state, so clear it to allow re-clicking.
+        ServerPlayersListBox.SelectedItem = null;
+    }
+
+    private void AddUsernameIconButton_OnClick(object sender, RoutedEventArgs e)
     {
         if (ServersListBox.SelectedItem is not ServerListItem selected)
         {
             return;
         }
 
-        var name = UsernameTextBox.Text.Trim();
-        if (string.IsNullOrEmpty(name) ||
-            selected.Server.WatchUsernames.Contains(name, StringComparer.OrdinalIgnoreCase))
+        var dialog = new AddUsernameWindow(selected.Server.WatchUsernames) { Owner = this };
+        if (dialog.ShowDialog() != true)
         {
             return;
         }
 
-        selected.Server.WatchUsernames.Add(name);
+        AddWatchedUsername(selected, dialog.UsernameInput);
+    }
+
+    private void RemoveUsernameIconButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (((FrameworkElement)sender).DataContext is not string name)
+        {
+            return;
+        }
+
+        if (ServersListBox.SelectedItem is not ServerListItem selected)
+        {
+            return;
+        }
+
+        RemoveWatchedUsername(selected, name);
+    }
+
+    private void AddWatchedUsername(ServerListItem server, string name)
+    {
+        if (server.Server.WatchUsernames.Contains(name, StringComparer.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        server.Server.WatchUsernames.Add(name);
         ConfigStore.Save(_config);
         UsernamesListBox.Items.Add(name);
-        UsernameTextBox.Text = "";
+
+        var match = _serverPlayers.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (match != null)
+        {
+            match.IsWatched = true;
+        }
     }
 
-    private void RemoveUsernameButton_OnClick(object sender, RoutedEventArgs e)
+    private void RemoveWatchedUsername(ServerListItem server, string name)
     {
-        if (ServersListBox.SelectedItem is not ServerListItem selected)
-        {
-            return;
-        }
-
-        if (UsernamesListBox.SelectedItem is not string name)
-        {
-            return;
-        }
-
-        selected.Server.WatchUsernames.Remove(name);
+        server.Server.WatchUsernames.Remove(name);
         ConfigStore.Save(_config);
         UsernamesListBox.Items.Remove(name);
+
+        var match = _serverPlayers.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (match != null)
+        {
+            match.IsWatched = false;
+        }
+    }
+
+    private async Task RefreshServerPlayersAsync(ServerListItem server)
+    {
+        _serverPlayers.Clear();
+
+        if (!ServerAddress.TryParse(server.Server.Address, out var host, out var port))
+        {
+            return;
+        }
+
+        try
+        {
+            var players = await SampQueryClient.GetPlayersAsync(host, port, QueryTimeout);
+            foreach (var player in players)
+            {
+                var isWatched = server.Server.WatchUsernames.Contains(player.Name, StringComparer.OrdinalIgnoreCase);
+                _serverPlayers.Add(new ServerPlayerItem(player.Name, isWatched));
+            }
+        }
+        catch (SampQueryException)
+        {
+            // Server unreachable or has disabled player-list queries -- its status
+            // in the Servers list already explains why; this panel just stays empty.
+        }
     }
 
     private async Task RefreshServerStatusAsync(ServerListItem item)
