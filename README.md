@@ -7,7 +7,7 @@
 Toreno is a Windows tray app that watches one or more SA-MP servers' player list and sends a Windows notification when a friend you're watching for connects.
 
 > [!NOTE]
-> Windows SmartScreen will likely warn that `TorenoSetup.exe` is from an "unknown publisher" the first time you run it. That's expected for an unsigned hobby project (code-signing certificates cost money), not a sign anything's actually wrong — the source is right here if you want to check for yourself. Click **"Run anyway"** to proceed.
+> Windows SmartScreen will likely warn that `TorenoSetup.exe` is from an "unknown publisher" the first time you run it. That's expected for an unsigned hobby project (code-signing certificates cost money), such as this one. The source is right here if you want to check for yourself. Click **"Run anyway"** to proceed.
 
 ## Usage
 
