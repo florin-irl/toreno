@@ -6,6 +6,9 @@
 
 Toreno is a Windows tray app that watches one or more SA-MP servers' player list and sends a Windows notification when a friend you're watching for connects.
 
+> [!NOTE]
+> Windows SmartScreen will likely warn that `TorenoSetup.exe` is from an "unknown publisher" the first time you run it. That's expected for an unsigned hobby project (code-signing certificates cost money), not a sign anything's actually wrong — the source is right here if you want to check for yourself. Click **"Run anyway"** to proceed.
+
 ## Usage
 
 Install Toreno and it sits in your system tray. Double-click the icon to open the management window, press the **+** next to Servers, and give it an address (`host:port`). Toreno checks the server right away over its public UDP query protocol - the same one server browsers use, no game client or login involved - and tells you whether it can actually see individual players there (some larger servers disable that part of the protocol; see Known limitations below). Once a server's added, its live "who's online" list shows up on the right - click a name to start watching it, or add one manually if the person isn't online yet. From then on, Toreno polls that server in the background, diffs the player list against what it saw last time, and fires a native Windows toast the moment a watched name shows up - including an immediate check for anyone already online when you start watching, so you're not stuck waiting for a rejoin. Closing the window just hides it; Toreno keeps running from the tray until you choose Exit, and can optionally launch itself at Windows startup (toggle it from the cog icon).
